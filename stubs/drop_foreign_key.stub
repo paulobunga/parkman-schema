@@ -1,0 +1,1 @@
+$table->dropForeign('{{ foreign_key_name }}');

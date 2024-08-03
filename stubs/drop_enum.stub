@@ -1,0 +1,1 @@
+DB::statement("DROP TYPE {{ enum_name }}");

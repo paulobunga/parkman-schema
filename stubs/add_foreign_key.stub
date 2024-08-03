@@ -1,0 +1,5 @@
+$table->foreign('{{ column }}')
+      ->references('{{ referenced_column }}')
+      ->on('{{ referenced_table }}')
+      ->onDelete('{{ on_delete }}')
+      ->onUpdate('{{ on_update }}');

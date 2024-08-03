@@ -1,0 +1,1 @@
+DB::statement("CREATE TYPE {{ enum_name }} AS ENUM ({{ enum_values }})");

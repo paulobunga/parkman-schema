@@ -108,22 +108,112 @@ class ParkmanSchema
 
     protected function handleAlterTable($operation)
     {
-        // Implementation remains the same
+        $tableName = $operation['params']['table'];
+        $alterations = $operation['params']['alterations'];
+
+        $upOperations = [];
+        $downOperations = [];
+
+        foreach ($alterations as $alteration) {
+            switch ($alteration['type']) {
+                case 'AddColumn':
+                    $upOperations[] = $this->stubParser->parse('add_column', [
+                        'type' => $this->mapPrismaTypeToLaravel($alteration['column']['type']),
+                        'name' => $alteration['column']['name'],
+                        'nullable' => $alteration['column']['nullable'] ? '->nullable()' : '',
+                        'default' => isset($alteration['column']['default']) ? "->default('{$alteration['column']['default']}')" : '',
+                    ]);
+                    $downOperations[] = $this->stubParser->parse('drop_column', [
+                        'name' => $alteration['column']['name'],
+                    ]);
+                    break;
+                case 'DropColumn':
+                    $upOperations[] = $this->stubParser->parse('drop_column', [
+                        'name' => $alteration['column'],
+                    ]);
+                    // Note: We can't reliably reverse a column drop without knowing its original definition
+                    $downOperations[] = "// TODO: Manually add column '{$alteration['column']}' definition here";
+                    break;
+                case 'RenameColumn':
+                    $upOperations[] = $this->stubParser->parse('rename_column', [
+                        'old_name' => $alteration['from'],
+                        'new_name' => $alteration['to'],
+                    ]);
+                    $downOperations[] = $this->stubParser->parse('rename_column', [
+                        'old_name' => $alteration['to'],
+                        'new_name' => $alteration['from'],
+                    ]);
+                    break;
+            }
+        }
+
+        $up = $this->stubParser->parse('alter_table', [
+            'table' => $tableName,
+            'operations' => implode("\n            ", $upOperations),
+        ]);
+
+        $down = $this->stubParser->parse('alter_table', [
+            'table' => $tableName,
+            'operations' => implode("\n            ", array_reverse($downOperations)),
+        ]);
+
+        return [$up, $down];
     }
 
     protected function handleRenameTable($operation)
     {
-        // Implementation remains the same
+        $oldName = $operation['params']['from'];
+        $newName = $operation['params']['to'];
+
+        $up = $this->stubParser->parse('rename_table', [
+            'old_name' => $oldName,
+            'new_name' => $newName,
+        ]);
+
+        $down = $this->stubParser->parse('rename_table', [
+            'old_name' => $newName,
+            'new_name' => $oldName,
+        ]);
+
+        return [$up, $down];
     }
 
     protected function handleAddForeignKey($operation)
     {
-        // Implementation remains the same
+        $table = $operation['params']['table'];
+        $foreignKey = $operation['params']['foreignKey'];
+
+        $up = $this->stubParser->parse('add_foreign_key', [
+            'table' => $table,
+            'column' => $foreignKey['column'],
+            'referenced_table' => $foreignKey['referencedTable'],
+            'referenced_column' => $foreignKey['referencedColumn'],
+            'on_delete' => $foreignKey['onDelete'] ?? 'cascade',
+            'on_update' => $foreignKey['onUpdate'] ?? 'cascade',
+        ]);
+
+        $down = $this->stubParser->parse('drop_foreign_key', [
+            'table' => $table,
+            'foreign_key_name' => "{$table}_{$foreignKey['column']}_foreign",
+        ]);
+
+        return [$up, $down];
     }
 
     protected function handleDropForeignKey($operation)
     {
-        // Implementation remains the same
+        $table = $operation['params']['table'];
+        $foreignKeyName = $operation['params']['foreignKey'];
+
+        $up = $this->stubParser->parse('drop_foreign_key', [
+            'table' => $table,
+            'foreign_key_name' => $foreignKeyName,
+        ]);
+
+        // Note: We can't reliably reverse a foreign key drop without knowing its original definition
+        $down = "// TODO: Manually add foreign key '{$foreignKeyName}' definition here";
+
+        return [$up, $down];
     }
 
     protected function generateCreateTableMethod($tableName, $fields)
