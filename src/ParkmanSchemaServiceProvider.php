@@ -3,6 +3,8 @@
 namespace Paulobunga\ParkmanSchema;
 
 use Illuminate\Support\ServiceProvider;
+use Paulobunga\ParkmanSchema\Commands\GenerateModelsCommand;
+use Paulobunga\ParkmanSchema\Commands\GenerateMigrationsCommand;
 
 class ParkmanSchemaServiceProvider extends ServiceProvider
 {
@@ -23,6 +25,15 @@ class ParkmanSchemaServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__.'/../config/config.php' => config_path('parkman-schema.php'),
             ], 'config');
+
+            $this->publishes([
+                __DIR__.'/../stubs' => base_path('stubs/vendor/parkman-schema'),
+            ], 'stubs');
+
+            $this->commands([
+                GenerateModelsCommand::class,
+                GenerateMigrationsCommand::class,
+            ]);
 
             
 
