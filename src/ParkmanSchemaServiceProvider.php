@@ -24,6 +24,8 @@ class ParkmanSchemaServiceProvider extends ServiceProvider
                 __DIR__.'/../config/config.php' => config_path('parkman-schema.php'),
             ], 'config');
 
+            
+
             // Publishing the views.
             /*$this->publishes([
                 __DIR__.'/../resources/views' => resource_path('views/vendor/parkman-schema'),
