@@ -5,6 +5,7 @@ namespace Paulobunga\ParkmanSchema;
 use Illuminate\Support\ServiceProvider;
 use Paulobunga\ParkmanSchema\Commands\GenerateModelsCommand;
 use Paulobunga\ParkmanSchema\Commands\GenerateMigrationsCommand;
+use Paulobunga\ParkmanSchema\Commands\ParkmanGenerateCommand;
 
 class ParkmanSchemaServiceProvider extends ServiceProvider
 {
@@ -33,6 +34,7 @@ class ParkmanSchemaServiceProvider extends ServiceProvider
             $this->commands([
                 GenerateModelsCommand::class,
                 GenerateMigrationsCommand::class,
+                ParkmanGenerateCommand::class,
             ]);
 
             

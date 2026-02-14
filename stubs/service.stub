@@ -1,0 +1,37 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ model_namespace }}\{{ model_name }};
+use Illuminate\Database\Eloquent\Collection;
+
+class {{ class_name }}
+{
+    public function all(): Collection
+    {
+        return {{ model_name }}::all();
+    }
+
+    public function create(array $data): {{ model_name }}
+    {
+        return {{ model_name }}::create($data);
+    }
+
+    public function find($id): {{ model_name }}
+    {
+        return {{ model_name }}::findOrFail($id);
+    }
+
+    public function update($id, array $data): {{ model_name }}
+    {
+        $record = $this->find($id);
+        $record->update($data);
+        return $record;
+    }
+
+    public function delete($id): void
+    {
+        $record = $this->find($id);
+        $record->delete();
+    }
+}
